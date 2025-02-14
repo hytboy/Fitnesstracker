@@ -1,4 +1,34 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
-.custom-text-field, .custom-password-field {
-    -fx-pref-width: 200px; /* Breite auf 200 Pixel begrenzen */
+
+/*Login - Seite CSS  */
+.registration, .login{
+	-fx-background-color: #6B8E23;
+}
+.label{
+	-fx-text-fill: white;
+	-fx-font-weight: bold;
+	-fx-font-size:20px;
+}
+.h1{ 
+	-fx-font-weight: bold;
+	-fx-font-size: 25px;
+	
+}
+.h2 {
+	-fx-font-weight: bold;
+	-fx-text-fill: black;
+	-fx-font-size: 23px;
+}
+.TextField, .PasswordField{
+	-fx-max-width: 200;
+}
+
+
+/* Registrierungs - Seite CSS */
+
+.custom-label-reg {
+	-fx-text-fill:white;
+	-fx-font-weight:bold;
+	-fx-font-size:12px;
+	
 }
