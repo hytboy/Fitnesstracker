@@ -1,34 +1,61 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
-
-/*Login - Seite CSS  */
-.registration, .login{
+/* Overall Background CSS  */
+.registration, .login, .mainMenu , .mainmenu{
 	-fx-background-color: #6B8E23;
+
 }
+@font-face {
+	/*ont-family: "VeniteAdoremusStraight";*/
+    src: url("fonts/VeniteAdoremusStraight-Yzo6v.tff");
+}
+
+/* Login Szene - CSS */
+
 .label{
 	-fx-text-fill: white;
 	-fx-font-weight: bold;
-	-fx-font-size:20px;
+	-fx-font-size:15px;
 }
 .h1{ 
 	-fx-font-weight: bold;
 	-fx-font-size: 25px;
+	-fx-font-family: "VeniteAdoremusStraight";
 	
 }
 .h2 {
 	-fx-font-weight: bold;
 	-fx-text-fill: black;
 	-fx-font-size: 23px;
+
 }
 .TextField, .PasswordField{
-	-fx-max-width: 200;
+	-fx-max-width: 200px; 
 }
-
-
-/* Registrierungs - Seite CSS */
+/* Registrierungs - Szene CSS */
 
 .custom-label-reg {
 	-fx-text-fill:white;
 	-fx-font-weight:bold;
 	-fx-font-size:12px;
+
+}
+/* Main Menu Szene - CSS */
+.custom-label-menu{
+	-fx-text-fill: white;
 	
+	-fx-font-size: 15px;
+}
+.Menu { 
+	-fx-text-fill: #6B8E23;
+	-fx-background-color: black;
+	
+}
+.MenuItem {
+    -fx-background-color: black; /* Hintergrundfarbe der Menüeinträge */
+    -fx-text-fill: #6B8E23;      /* Textfarbe (grün) */
+}
+
+/* Optional: Hover-Effekt */
+.MenuItem:hover {
+    -fx-background-color: #4F6228; /* Etwas hellerer Hintergrund bei Hover */
 }

@@ -2,39 +2,44 @@ package database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import application.User;
 
 public class DataBaseCon {
-	public class PostgreSQLConnection {
-
+    public static class PostgreSQLConnection {
         private static final String URL = "jdbc:postgresql://localhost:5432/Fitnesstracker";
         private static final String USER = "postgres";
         private static final String PASSWORD = "vn7791g782K!";
 
-        public static void main(String[] args) {
-            Connection connection = null;
+        public static User authenticate(String inputusername, String inputpassword) {
+            String sql = "SELECT * FROM mitarbeiter WHERE user_name = ? AND passwort = ?";
 
-            try {
-                // Verbindung herstellen
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                if (connection != null) {
-                    System.out.println("Verbindung zur PostgreSQL-Datenbank erfolgreich!");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setString(1, inputusername);
+                pstmt.setString(2, inputpassword);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    // Benutzer gefunden - Benutzerobjekt erstellen
+                    User user = new User();
+                    user.setFirstName(rs.getString("vorname"));
+                    user.setLastName(rs.getString("nachname"));
+                    user.setHeight(rs.getInt("groesse"));
+                    user.setWeight(rs.getDouble("aktuelles_gewicht"));
+                    return user;
                 }
             } catch (SQLException e) {
-                System.out.println("Fehler beim Herstellen der Verbindung:");
                 e.printStackTrace();
-            } finally {
-                // Verbindung schließen
-                if (connection != null) {
-                    try {
-                        connection.close();
-                        System.out.println("Verbindung geschlossen.");
-                    } catch (SQLException e) {
-                        System.out.println("Fehler beim Schließen der Verbindung:");
-                        e.printStackTrace();
-                    }
-                }
             }
+
+            // Benutzer nicht gefunden oder Fehler
+            return null;
         }
     }
+    
 }
+
