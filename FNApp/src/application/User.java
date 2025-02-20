@@ -3,8 +3,8 @@ package application;
 public class User {
 		private String passwort;
 		private String username;
-	    private String firstName;
-	    private String lastName;
+	    private String firstname;
+	    private String lastname;
 	    private double height;
 	    private double weight;
 	    private double bmi;
@@ -13,19 +13,19 @@ public class User {
 	    public User() {}
 
 		public String getFirstName() {
-			return firstName;
+			return firstname;
 		}
 
 		public void setFirstName(String firstName) {
-			this.firstName = firstName;
+			this.firstname = firstName;
 		}
 
 		public String getLastName() {
-			return lastName;
+			return lastname;
 		}
 
 		public void setLastName(String lastName) {
-			this.lastName = lastName;
+			this.lastname = lastName;
 		}
 
 		public double getHeight() {
@@ -44,7 +44,7 @@ public class User {
 			this.weight = weight;
 		}
 	        
-		public double getBMI() {
+		public double getBmi() {
 			return bmi;
 		}
 

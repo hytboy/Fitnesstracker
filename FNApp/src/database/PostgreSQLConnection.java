@@ -7,8 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import application.User;
 
-public class DataBaseCon {
-    public static class PostgreSQLConnection {
+public class PostgreSQLConnection {
+    
         private static final String URL = "jdbc:postgresql://localhost:5432/Fitnesstracker";
         private static final String USER = "postgres";
         private static final String PASSWORD = "vn7791g782K!";
@@ -22,7 +22,8 @@ public class DataBaseCon {
                 pstmt.setString(1, inputusername);
                 pstmt.setString(2, inputpassword);
                 ResultSet rs = pstmt.executeQuery();
-
+                
+                
                 if (rs.next()) {
                     // Benutzer gefunden - Benutzerobjekt erstellen
                     User user = new User();
@@ -39,7 +40,6 @@ public class DataBaseCon {
             // Benutzer nicht gefunden oder Fehler
             return null;
         }
+        
     }
-    
-}
 

@@ -11,9 +11,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
+
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.Tab;
+
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -31,23 +31,23 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.TabPane;
+
 
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Menu;
 
 import application.User;
-import database.DataBaseCon.PostgreSQLConnection;
+import database.PostgreSQLConnection;
 
 
 public class Main extends Application implements EventHandler<ActionEvent>{
 
-	private Stage primaryStage;
-    private Scene registration;  // Deklaration der Szene für Registrierung außerhalb der start()-Methode
+	private Scene registration;  // Deklaration der Szene für Registrierung außerhalb der start()-Methode
     private Scene mainMenu;	
     
     private Label uStatVorname,uStatNachname,uStatheight, uStatweight;
-    private Label errorMessage;
+    private TextField uStatvname, uStatnname, uStath, uStatw;
+   // private Label errorMessage;
     //private TabPane mainmenu;
    
 
@@ -107,7 +107,59 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             loginlayout.getStyleClass().add("login");
             imageview.fitHeightProperty().bind(login.heightProperty());
 
+         // Login-Button-Action
+            submitButton.setOnAction(e -> {
+                String inputUsername = uName.getText();
+                String inputPassword = pWord.getText();
 
+                User user = PostgreSQLConnection.authenticate(inputUsername, inputPassword);
+
+                if (user != null) {
+                    //errorMessage.setVisible(false); // Verstecke evtl. vorherige Fehlermeldung
+                    System.out.println("Login erfolgreich!");
+                    
+                 // Benutzerinformationen in die Textfelder setzen
+
+                 /*uStatvname.setText(user.getFirstName());
+
+                   uStatnname.setText(user.getLastName());
+
+                   uStath.setText(String.valueOf(user.getHeight()));
+
+                   uStatw.setText(String.valueOf(user.getWeight()));*/
+                    
+    
+                    
+                    primaryStage.setScene(mainMenu);
+                    primaryStage.show();
+                   
+                } else {
+                    // Prüfen, ob es am Passwort oder am Usernamen liegt
+                    String sql = "SELECT * FROM mitarbeiter WHERE user_name = ?";
+                    try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Fitnesstracker", "postgres", "vn7791g782K!");
+                         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                        pstmt.setString(1, inputUsername);
+                        ResultSet rs = pstmt.executeQuery();
+
+                        if (rs.next()) {
+                        	System.err.println("Falsches Passwort!");
+                            //errorMessage.setText("❌ Falsches Passwort!");
+                        } else {
+                        	System.err.println("Benutzername nicht gefunden!");
+                           // errorMessage.setText("❌ Benutzername nicht gefunden!");
+                        }
+                       
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        System.err.println("Datenbankfehler!");
+                       // errorMessage.setText("❌ Datenbankfehler!");
+                       // errorMessage.setVisible(true);
+                    }
+                    
+                }
+            });
+            
+     
             //Szene 2 - Registrierung
             //Head Pic & Überschrift
             VBox header = new VBox();
@@ -214,26 +266,23 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             menu.setAlignment(Pos.CENTER);
             menu.getChildren().addAll(menubar,logoutButton);
 
-            VBox userStats = new VBox();
+            VBox userStats = new VBox(5);
             Label uStatVorname = new Label("Vorname:");
             uStatVorname.getStyleClass().add("custom-label-menu");
+            Text uStatvname = new Text("");
             Label uStatNachname = new Label("Nachname: \n");
             uStatNachname.getStyleClass().add("custom-label-menu");
+            Text uStatnname = new Text("");
             Label uStatheight = new Label("Größe: \n");
             uStatheight.getStyleClass().add("custom-label-menu");
+            Text uStath = new Text("");
             Label uStatweight = new Label("Gewicht: \n");
             uStatweight.getStyleClass().add("custom-label-menu");
-            
+            Text uStatw = new Text("");
             userStats.setPrefWidth(200);
-            userStats.setBorder(new Border(new BorderStroke(
-            		Color.BLACK,
-            		BorderStrokeStyle.SOLID, 
-            		new CornerRadii(0),
-            		new BorderWidths(2)
-            )
-            		)
-            		);
-            VBox bmiCalc = new VBox();
+            
+            
+            VBox bmiCalc = new VBox(5);
             
             Text bmiCalcHeader = new Text("BMI-Calculator");
             bmiCalcHeader.getStyleClass().add("h1");
@@ -243,12 +292,16 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             Label yourHeight = new Label("Deine Größe(cm): \n");
             TextField yHeight = new TextField();
             yHeight.getStyleClass().add("TextField");
-            bmiCalcHeader.set
+            Button enterButton = new Button("Enter");
             
             
-            userStats.getChildren().addAll(uStatVorname,uStatNachname,uStatheight,uStatweight);
-            bmiCalc.getChildren().addAll(bmiCalcHeader, yourWeight, yWeight, yourHeight, yHeight);
+            bmiCalc.setPrefSize(600, 700);
+            
+            
+            userStats.getChildren().addAll(uStatVorname, uStatvname,uStatNachname, uStatnname,uStatheight, uStath,uStatweight, uStatw);
+            bmiCalc.getChildren().addAll(bmiCalcHeader, yourWeight, yWeight, yourHeight, yHeight, enterButton);
             userStats.setAlignment(Pos.TOP_LEFT);
+            bmiCalc.setAlignment(Pos.TOP_CENTER);
             menulayout.setTop(menu);
             menulayout.setLeft(userStats);
             menulayout.setCenter(bmiCalc);
@@ -257,8 +310,8 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             // ** Aktionen für die Buttons **
             //regButton
             logoutButton.setOnAction(e -> primaryStage.setScene(login));	//Logout Button(Abmeldung erfolgt und Szenen wecheseln zum Login-Szene)
-            submitButton.setOnAction(e -> primaryStage.setScene(mainMenu));
-            //submitButton.setOnAction(e -> handleLogin(uName.getText(),pWord.getText()));
+            enterButton.setOnAction(null);
+            
             registButton.setOnAction(e -> primaryStage.setScene(registration));  // Registrierungs Button (Wechsel Szene wechseln
             backButton.setOnAction(e -> primaryStage.setScene(login));  // Zurück zur Login-Szene
 
@@ -273,38 +326,11 @@ public class Main extends Application implements EventHandler<ActionEvent>{
         }
     }
 
-	
-	public void handleLogin(String uName, String pWord) {
-		User user = PostgreSQLConnection.authenticate(uName, pWord);
+	@Override
+	public void handle(ActionEvent arg0) {
+		// TODO Auto-generated method stub
 		
-		if (user != null) {
-            
-			// Benutzerstatistiken aktualisieren
-            uStatVorname.setText("Vorname: " + user.getFirstName());
-            uStatNachname.setText("Nachname: " + user.getLastName());
-            uStatheight.setText("Größe: " + user.getHeight() + " cm");
-            uStatweight.setText("Gewicht: " + user.getWeight() + " kg");
-        
-            // In das Hauptmenü wechseln
-            primaryStage.setScene(mainMenu);
-            errorMessage.setVisible(false);
-        } else {
-        	
-        }
-    }
-	public static User authenticate(String uName, String pWord) {
-	    String sql = "SELECT * FROM mitarbeiter WHERE user_name = ? AND passwort = ?";
-	    try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Fitnesstracker", "postgres", "vn7791g782K!");
-	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-	        pstmt.setString(1, uName);
-	        pstmt.setString(2, pWord);
-	        
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return null; // Falls Benutzer nicht gefunden oder Fehler
 	}
-	
 }
 	
 

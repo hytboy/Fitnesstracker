@@ -12,7 +12,7 @@
 /* Login Szene - CSS */
 
 .label{
-	-fx-text-fill: white;
+	-fx-text-fill: black;
 	-fx-font-weight: bold;
 	-fx-font-size:15px;
 }
@@ -20,6 +20,7 @@
 	-fx-font-weight: bold;
 	-fx-font-size: 25px;
 	-fx-font-family: "VeniteAdoremusStraight";
+	-fx-text-alignment: center;
 	
 }
 .h2 {
@@ -34,14 +35,14 @@
 /* Registrierungs - Szene CSS */
 
 .custom-label-reg {
-	-fx-text-fill:white;
+	-fx-text-fill: black;
 	-fx-font-weight:bold;
 	-fx-font-size:12px;
 
 }
 /* Main Menu Szene - CSS */
 .custom-label-menu{
-	-fx-text-fill: white;
+	-fx-text-fill: black;
 	
 	-fx-font-size: 15px;
 }
