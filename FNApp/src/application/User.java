@@ -48,6 +48,10 @@ public class User {
 			return bmi;
 		}
 
+		public void setBmi(double bmi) {
+			this.bmi = bmi;
+		}
+
 		public String getUsername() {
 			return username;
 		}

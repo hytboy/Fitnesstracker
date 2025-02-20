@@ -31,7 +31,11 @@ public class PostgreSQLConnection {
                     user.setLastName(rs.getString("nachname"));
                     user.setHeight(rs.getInt("groesse"));
                     user.setWeight(rs.getDouble("aktuelles_gewicht"));
-                    return user;
+                    user.setBmi(rs.getDouble("aktuelle_bmi"));
+                    user.setUsername(rs.getString("user_name"));
+                    
+                    user.getUsername();
+                    return user;//("vorname, nachname, groesse, aktuelles_gewicht, bmi");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

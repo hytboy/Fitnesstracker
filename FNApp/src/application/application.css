@@ -46,7 +46,7 @@
 	
 	-fx-font-size: 15px;
 }
-.Menu { 
+.Menu:hover { 
 	-fx-text-fill: #6B8E23;
 	-fx-background-color: black;
 	

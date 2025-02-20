@@ -17,12 +17,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Border;
+
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
+
+
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -44,9 +43,9 @@ public class Main extends Application implements EventHandler<ActionEvent>{
 
 	private Scene registration;  // Deklaration der Szene für Registrierung außerhalb der start()-Methode
     private Scene mainMenu;	
-    
+    private User currentUser;
     private Label uStatVorname,uStatNachname,uStatheight, uStatweight;
-    private TextField uStatvname, uStatnname, uStath, uStatw;
+    private Text uStatvname, uStatnname, uStath, uStatw, uStatbmi, aktbmi;
    // private Label errorMessage;
     //private TabPane mainmenu;
    
@@ -76,7 +75,8 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             Text h2 = new Text("Willkommen\n Die App die dich Fit hält");
             h2.setTextAlignment(TextAlignment.CENTER);
             h2.getStyleClass().add("h2");
-
+            intro.getChildren().addAll(h1,h2);
+            
             // VBox mit Label und Textfeld
             VBox userInput = new VBox(10);
             Label username = new Label("Username: ");
@@ -92,13 +92,12 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             Button submitButton = new Button("Login");
           
             Button registButton = new Button("Registrieren");
-            
+            userInput.getChildren().addAll(h1,h2,username, uName, passwort, pWord, submitButton, registButton);
             
             
             
             // ** Layout und Szene für die Login-Seite **
-            intro.getChildren().addAll(h1,h2);
-            userInput.getChildren().addAll(h1,h2,username, uName, passwort, pWord, submitButton, registButton);
+            
             BorderPane loginlayout = new BorderPane();
             loginlayout.setLeft(pic);
             loginlayout.setCenter(userInput);
@@ -113,25 +112,20 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                 String inputPassword = pWord.getText();
 
                 User user = PostgreSQLConnection.authenticate(inputUsername, inputPassword);
-
+               
                 if (user != null) {
-                    //errorMessage.setVisible(false); // Verstecke evtl. vorherige Fehlermeldung
-                    System.out.println("Login erfolgreich!");
-                    
+                	System.out.println("Login erfolgreich!");
+                    currentUser = user; 
                  // Benutzerinformationen in die Textfelder setzen
 
-                 /*uStatvname.setText(user.getFirstName());
-
-                   uStatnname.setText(user.getLastName());
-
+                   uStatvname.setText(String.valueOf(user.getFirstName()));
+                   uStatnname.setText(String.valueOf(user.getLastName()));
                    uStath.setText(String.valueOf(user.getHeight()));
-
-                   uStatw.setText(String.valueOf(user.getWeight()));*/
-                    
-    
-                    
-                    primaryStage.setScene(mainMenu);
-                    primaryStage.show();
+                   uStatw.setText(String.valueOf(user.getWeight()));
+                   uStatbmi.setText(String.valueOf(user.getBmi()));
+                   
+                   primaryStage.setScene(mainMenu);
+                   primaryStage.show();
                    
                 } else {
                     // Prüfen, ob es am Passwort oder am Usernamen liegt
@@ -143,17 +137,17 @@ public class Main extends Application implements EventHandler<ActionEvent>{
 
                         if (rs.next()) {
                         	System.err.println("Falsches Passwort!");
-                            //errorMessage.setText("❌ Falsches Passwort!");
+                       //     errorMessage.setText("❌ Falsches Passwort!");
                         } else {
                         	System.err.println("Benutzername nicht gefunden!");
-                           // errorMessage.setText("❌ Benutzername nicht gefunden!");
+                         //   errorMessage.setText("❌ Benutzername nicht gefunden!");
                         }
                        
                     } catch (SQLException ex) {
                         ex.printStackTrace();
                         System.err.println("Datenbankfehler!");
-                       // errorMessage.setText("❌ Datenbankfehler!");
-                       // errorMessage.setVisible(true);
+                     //   errorMessage.setText("❌ Datenbankfehler!");
+                     //   errorMessage.setVisible(true);
                     }
                     
                 }
@@ -224,35 +218,11 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             registrationlayout.getStyleClass().add("registration");
             headimgv.fitWidthProperty().bind(registration.widthProperty());
           
-            
-            //Szene Erstellen
-            /*BorderPane menulayout = new BorderPane();
-            mainMenu = new Scene(menulayout,800, 700);
-            VBox userStats = new VBox();
-            Label uStatVorname = new Label("Vorname:");
-            uStatVorname.getStyleClass().add("custom-label-menu");
-            Label uStatNachname = new Label("Nachname: \n");
-            uStatNachname.getStyleClass().add("custom-label-menu");
-            Label uStatheight = new Label("Größe: \n");
-            uStatheight.getStyleClass().add("custom-label-menu");
-            Label uStatweight = new Label("Gewicht: \n");
-            uStatweight.getStyleClass().add("custom-label-menu");
-            
-            TabPane menuPane = new TabPane();
-            Tab tab1 = new Tab("BMI-Calc");
-            Tab tab2 = new Tab("Activitys");
-            Tab tab3 = new Tab("Kcal-Calc");
-            
-         
-            menuPane.getTabs().addAll(tab1, tab2, tab3);
-            menulayout.setCenter(menuPane);
-            menulayout.setLeft(userStats);*/
-            
+            //Layout für MainMenu
             BorderPane menulayout = new BorderPane();
             mainMenu = new Scene(menulayout,800, 700);
             mainMenu.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
             menulayout.getStyleClass().add("mainMenu");
-            
             
             
             HBox menu = new HBox();
@@ -260,27 +230,31 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             Menu BMICalc = new Menu("BMI-Rechner");
             Menu activity = new Menu("Aktivität");
             Menu kcalCalc = new Menu("KCal-Berechnen");
+            Button logoutButton = new Button("Logout");
             menubar.getMenus().addAll(BMICalc,activity,kcalCalc);
             menubar.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-            Button logoutButton = new Button("Logout");
             menu.setAlignment(Pos.CENTER);
             menu.getChildren().addAll(menubar,logoutButton);
+            
 
             VBox userStats = new VBox(5);
             Label uStatVorname = new Label("Vorname:");
             uStatVorname.getStyleClass().add("custom-label-menu");
-            Text uStatvname = new Text("");
+            uStatvname = new Text("");
             Label uStatNachname = new Label("Nachname: \n");
             uStatNachname.getStyleClass().add("custom-label-menu");
-            Text uStatnname = new Text("");
+            uStatnname = new Text("");
             Label uStatheight = new Label("Größe: \n");
             uStatheight.getStyleClass().add("custom-label-menu");
-            Text uStath = new Text("");
+            uStath = new Text("");
             Label uStatweight = new Label("Gewicht: \n");
             uStatweight.getStyleClass().add("custom-label-menu");
-            Text uStatw = new Text("");
-            userStats.setPrefWidth(200);
-            
+            uStatw = new Text("");
+            Label uStatBmi = new Label("BMI: ");
+            uStatBmi.getStyleClass().add("custom-label-menu");
+            uStatbmi = new Text("");
+            //userStats.setPrefWidth(267);
+            userStats.getChildren().addAll(uStatVorname, uStatvname,uStatNachname, uStatnname,uStatheight, uStath,uStatweight, uStatw, uStatBmi, uStatbmi);
             
             VBox bmiCalc = new VBox(5);
             
@@ -294,14 +268,64 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             yHeight.getStyleClass().add("TextField");
             Button enterButton = new Button("Enter");
             
+            Label aktBmi = new Label("Dein neuer BMI: ");
+            aktbmi = new Text("");
             
-            bmiCalc.setPrefSize(600, 700);
+            //bmiBewertung = new Text("");
             
+            //bmiCalc.setPrefSize(267, 700);
+            bmiCalc.getChildren().addAll(bmiCalcHeader, yourWeight, yWeight, yourHeight, yHeight, enterButton, aktBmi, aktbmi);
             
-            userStats.getChildren().addAll(uStatVorname, uStatvname,uStatNachname, uStatnname,uStatheight, uStath,uStatweight, uStatw);
-            bmiCalc.getChildren().addAll(bmiCalcHeader, yourWeight, yWeight, yourHeight, yHeight, enterButton);
-            userStats.setAlignment(Pos.TOP_LEFT);
-            bmiCalc.setAlignment(Pos.TOP_CENTER);
+            //enter-Button Aktion
+            enterButton.setOnAction(e -> {
+                try {
+                    // Eingabewerte aus den Textfeldern abrufen
+                    double userweight = Double.parseDouble(yWeight.getText());
+                    double userheightCm = Double.parseDouble(yHeight.getText());
+                    double userheightM = userheightCm / 100.0;
+
+                    // Berechnung des BMI
+                    double bmi = userweight / Math.pow(userheightM, 2);
+                    //Ausgabe der Berechnung
+                    System.out.println("BMI: " + bmi);  // Ausgabe zur Überprüfung
+                    aktbmi.setText(String.format("%.2f", bmi)); // 
+                    
+                  
+                    // Datenbank-Update
+                    String sql = "UPDATE mitarbeiter SET groesse = ?, aktuelles_gewicht = ?,  aktuelle_bmi = ? WHERE user_name = ?";
+                   
+                    try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Fitnesstracker", "postgres", "vn7791g782K!");
+                         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                        pstmt.setDouble(1, userheightCm);
+                        pstmt.setDouble(2, userweight);
+                        pstmt.setDouble(3, bmi);
+                        pstmt.setString(4, currentUser.getUsername());
+                        System.out.println("Benutzername für Update: " + currentUser.getUsername());
+   
+                        int rowsUpdated = pstmt.executeUpdate();
+                        if (rowsUpdated > 0) {
+                            System.out.println("Daten erfolgreich aktualisiert.");
+                        } else {
+                            System.out.println("Datenbank-Update fehlgeschlagen.");
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        System.err.println("Fehler beim Aktualisieren der Datenbank!");
+                    }
+
+                    // Optional: Zeige den BMI in der Benutzeroberfläche an
+                    //Label bmiLabel = new Label("Dein berechneter BMI: " + String.format("%.2f", bmi));
+                    
+                    
+                   // bmiCalc.getChildren().add(bmiLabel);  // Füge das Label zur BMI-Box hinzu
+
+                } catch (NumberFormatException ex) {
+                    System.err.println("Fehler: Bitte gültige Zahlen für Gewicht und Größe eingeben.");
+                }
+            });
+            
+            userStats.setAlignment(Pos.CENTER_LEFT);
+            bmiCalc.setAlignment(Pos.CENTER);
             menulayout.setTop(menu);
             menulayout.setLeft(userStats);
             menulayout.setCenter(bmiCalc);
@@ -310,7 +334,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             // ** Aktionen für die Buttons **
             //regButton
             logoutButton.setOnAction(e -> primaryStage.setScene(login));	//Logout Button(Abmeldung erfolgt und Szenen wecheseln zum Login-Szene)
-            enterButton.setOnAction(null);
+          
             
             registButton.setOnAction(e -> primaryStage.setScene(registration));  // Registrierungs Button (Wechsel Szene wechseln
             backButton.setOnAction(e -> primaryStage.setScene(login));  // Zurück zur Login-Szene
@@ -324,6 +348,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
     }
 
 	@Override
