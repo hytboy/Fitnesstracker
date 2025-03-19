@@ -8,12 +8,13 @@ import java.sql.SQLException;
  
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
  
 import javafx.scene.control.PasswordField;
- 
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -33,6 +34,7 @@ import javafx.event.EventHandler;
  
  
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Menu;
  
 import application.User;
@@ -45,9 +47,12 @@ public class Main extends Application implements EventHandler<ActionEvent>{
     private Scene mainMenu;	
     private User currentUser;
     private Label uStatVorname,uStatNachname,uStatheight, uStatweight;
-    private Text uStatvname, uStatnname, uStath, uStatw, uStatbmi, aktbmi;
-   // private Label errorMessage;
+    private Text uStatvname, uStatnname, uStath, uStatw, uStatbmi, aktbmi,kcalclac;
+	private VBox bmiCalc;
+    //private Label errorMessage;
     //private TabPane mainmenu;
+	private VBox activity;
+	//private VBox kcalCalc;
    
  
     public static void main(String[] args) {
@@ -168,41 +173,100 @@ public class Main extends Application implements EventHandler<ActionEvent>{
  
             // ** Registrierung Layout erstellen **
             VBox regForm = new VBox(5);
- 
-            Label fname = new Label("Vorname: ");
-            TextField firstname = new TextField();
-			fname.getStyleClass().add("custom-label-reg");
- 
-            Label lname = new Label("Nachname: ");
-            TextField lastname = new TextField();
-          	lname.getStyleClass().add("custom-label-reg");
- 
-            Label email = new Label("Email: ");
-            TextField Email = new TextField();
-			email.getStyleClass().add("custom-label-reg");
- 
-			Label psswort = new Label("Wähle Ein Passwort:");
-			PasswordField password1 = new PasswordField();
-			psswort.getStyleClass().add("custom-label-reg");
- 
-			Label pssbest = new Label("Gib es erneut ein:");
-			PasswordField passbest = new PasswordField();
-			pssbest.getStyleClass().add("custom-label-reg");
- 
- 
-			Label height = new Label("Größe(cm): ");
-			TextField heightcm = new TextField();
-			height.getStyleClass().add("custom-label-reg");
- 
-			Label weight = new Label("Gewicht(Kg): ");
-			TextField weightKG = new TextField();
-			weight.getStyleClass().add("custom-label-reg");
-            regForm.setAlignment(Pos.CENTER);
- 
-            Button regButton = new Button("Registrieren");
-            Button backButton = new Button("Zurück");
- 
-            regForm.getChildren().addAll(fname,firstname,lname,lastname,email,Email,psswort,password1,
+            
+         
+         // Labels und Textfelder für Eingaben
+         Label usernameLabel = new Label("Benutzername:");
+         TextField usernames = new TextField();
+         usernameLabel.getStyleClass().add("custom-label-reg");
+            
+         Label fname = new Label("Vorname: ");
+         TextField firstname = new TextField();
+         fname.getStyleClass().add("custom-label-reg");
+
+         Label lname = new Label("Nachname: ");
+         TextField lastname = new TextField();
+         lname.getStyleClass().add("custom-label-reg");
+
+         Label email = new Label("Email: ");
+         TextField Email = new TextField();
+         email.getStyleClass().add("custom-label-reg");
+
+         Label psswort = new Label("Wähle Ein Passwort:");
+         PasswordField password1 = new PasswordField();
+         psswort.getStyleClass().add("custom-label-reg");
+
+         Label pssbest = new Label("Gib es erneut ein:");
+         PasswordField passbest = new PasswordField();
+         pssbest.getStyleClass().add("custom-label-reg");
+
+         Label height = new Label("Größe(cm): ");
+         TextField heightcm = new TextField();
+         height.getStyleClass().add("custom-label-reg");
+
+         Label weight = new Label("Gewicht(Kg): ");
+         TextField weightKG = new TextField();
+         weight.getStyleClass().add("custom-label-reg");
+
+         regForm.setAlignment(Pos.CENTER);
+
+         Button regButton = new Button("Registrieren");
+         Button backButton = new Button("Zurück");
+
+         regButton.setOnAction(e -> {
+             // Sicherstellen, dass die Felder für Vorname und Nachname nicht leer sind
+             String vorname = firstname.getText();
+             String nachname = lastname.getText();
+             String usern = usernames.getText();
+             if (vorname.isEmpty() || nachname.isEmpty() || usern.isEmpty() ){
+                 System.err.println("Bitte geben Sie Vorname und Nachname ein!");
+                 return; // Beende die Methode, wenn die Felder leer sind
+             }
+
+             // Sicherstellen, dass Passwort und Bestätigung übereinstimmen
+             String pass1 = password1.getText();
+             String pass2 = passbest.getText();
+             if (pass1.isEmpty() || pass2.isEmpty() || !pass1.equals(pass2)) {
+                 System.err.println("Bitte geben Sie dasselbe Passwort ein!");
+                 return; // Beende die Methode, wenn Passwörter nicht übereinstimmen oder leer sind
+             }
+
+             // Größe und Gewicht konvertieren und validieren
+             double groesse = 0;
+             double gewicht1 = 0;
+             try {
+                 groesse = Double.parseDouble(heightcm.getText());
+                 gewicht1 = Double.parseDouble(weightKG.getText());
+             } catch (NumberFormatException ex) {
+                 System.err.println("Ungültige Zahl für Größe oder Gewicht!");
+                 return; // Beende die Methode bei ungültiger Zahleneingabe
+             }
+
+             // Verbindung zur Datenbank herstellen
+             try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root")) {
+                 String query = "INSERT INTO mitarbeiter (vorname, nachname, groesse, aktuelles_gewicht, aktuelle_bmi, user_name, passwort) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                 try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                     pstmt.setString(1, vorname);
+                     pstmt.setString(2, nachname);
+                     pstmt.setDouble(3, groesse);
+                     pstmt.setDouble(4, gewicht1); // Beispiel für BMI (berechnet oder statisch gesetzt)
+                     pstmt.setInt(5, 0); // Beispiel für Aktivitäts-ID (wird später angepasst)
+                     pstmt.setString(6, usern); // Beispiel für Aktivitätsdauer
+                     pstmt.setString(7, pass2); // Beispiel für Kalorien pro Aktivität
+
+                     int rowsInserted = pstmt.executeUpdate();
+                     if (rowsInserted > 0) {
+                         System.out.println("Daten erfolgreich gespeichert.");
+                     } else {
+                         System.err.println("Fehler beim Einfügen in die Datenbank!");
+                     }
+                 }
+             } catch (SQLException ex) {
+                 System.err.println("SQL-Fehler: " + ex.getMessage());
+                 ex.printStackTrace();
+             }
+         });
+            regForm.getChildren().addAll(usernameLabel, usernames,fname,firstname,lname,lastname,email,Email,psswort,password1,
             		pssbest,passbest,height,heightcm,weight,weightKG,regButton,backButton);
  
             regForm.getStyleClass().addAll("TextField","PasswordField");
@@ -222,21 +286,29 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             mainMenu = new Scene(menulayout,800, 700);
             mainMenu.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
             menulayout.getStyleClass().add("mainMenu");
+           
+			
+			Label bmiLabel = new Label("BMI-Rechner");
+            bmiLabel.getStyleClass().add("menu-label"); // CSS-Klasse, die du definierst
+            bmiLabel.setOnMouseClicked(e -> menulayout.setCenter(bmiCalc));
+
+            Label activitys = new Label("Aktivität");
+            activitys.getStyleClass().add("menu-label");
+            activitys.setOnMouseClicked(e -> menulayout.setCenter(activity));
+
             
             
-            
-            HBox menu = new HBox();
-            MenuBar menubar = new MenuBar();
-            Menu BMICalc = new Menu("BMI-Rechner");
-            Menu activity = new Menu("Aktivität");
-            Menu kcalCalc = new Menu("KCal-Berechnen");
             Button logoutButton = new Button("Logout");
-            menubar.getMenus().addAll(BMICalc,activity,kcalCalc);
-            menubar.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-            menu.setAlignment(Pos.CENTER);
-            menu.getChildren().addAll(menubar,logoutButton);
+            logoutButton.setOnAction(e -> primaryStage.setScene(login));
             
-          
+            HBox menu = new HBox(10, bmiLabel, activitys, logoutButton);
+           
+            menu.setAlignment(Pos.CENTER);
+           
+            menulayout.setTop(menu);
+            
+            
+            
  
             VBox userStats = new VBox(5);
             Label uStatVorname = new Label("Vorname:");
@@ -259,14 +331,27 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             Button updateButton = new Button("Update");
             updateButton.setOnAction(e -> {
             	if (currentUser != null) {
-                    try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root");
-                         PreparedStatement pstmt = conn.prepareStatement("SELECT aktuelle_bmi FROM mitarbeiter WHERE user_name = ?")) {
-                        pstmt.setString(1, currentUser.getUsername());
-                        ResultSet rs = pstmt.executeQuery();
-                        if (rs.next()) {
-                            double bmi = rs.getDouble("aktuelle_bmi");
-                            uStatbmi.setText(" " + bmi);
-                        }
+                    try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root")) {
+                         
+                    	int mitarbeiterId = -1;
+                    	double gewicht = 0.0;
+                    	double bmi = 0.0;	
+                    	try (PreparedStatement pstmt = conn.prepareStatement("SELECT mitarbeiter_id, aktuelle_bmi, aktuelles_gewicht  FROM mitarbeiter WHERE user_name = ?")) {
+                    		pstmt.setString(1, currentUser.getUsername());
+                    		ResultSet rs = pstmt.executeQuery();
+                    		if (rs.next()) {
+                    			bmi = rs.getDouble("aktuelle_bmi");
+                    			gewicht = rs.getDouble("aktuelles_gewicht");
+                    			mitarbeiterId = rs.getInt("mitarbeiter_id");
+                    			uStatbmi.setText(" " + bmi);
+                    			uStatw.setText(" " + gewicht);
+                    		} else {
+                    			System.err.println("Kein Benutzer gefunden !");
+                    			return;
+                    		} 
+                    		
+                    	}     
+                    	
                     } catch (SQLException ex) {
                         ex.printStackTrace();
                         System.err.println("Fehler beim Abrufen des BMI aus der Datenbank!");
@@ -282,9 +367,12 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                                            uStatBmi, uStatbmi, updateButton);
 
             
-            VBox bmiCalc = new VBox(5);
             
-            Text bmiCalcHeader = new Text("BMI-Calculator");
+			
+			
+            bmiCalc = new VBox(5);
+            
+            Text bmiCalcHeader = new Text("BMI-Rechner");
             bmiCalcHeader.getStyleClass().add("h1");
             Label yourWeight = new Label("Dein aktuelles Gewicht: \n");
             TextField yWeight = new TextField();
@@ -300,7 +388,6 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             bmiCalc.setPrefSize(600, 700);
             bmiCalc.getChildren().addAll(bmiCalcHeader, yourWeight, yWeight, yourHeight, yHeight, enterButton, aktBmi, aktbmi);
             
-            //enter-Button Aktion
             enterButton.setOnAction(e -> {
                 try {
                     // Eingabewerte aus den Textfeldern abrufen
@@ -323,8 +410,8 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                     
                     try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root");
                          PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                        pstmt.setDouble(1, userweight);
-                        pstmt.setDouble(2, userheightCm);
+                        pstmt.setDouble(1, userheightCm);
+                        pstmt.setDouble(2, userweight);
                         pstmt.setDouble(3, bmi);
                         pstmt.setString(4, currentUser.getUsername());
  
@@ -349,9 +436,147 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                     System.err.println("Fehler: Bitte gültige Zahlen für Gewicht und Größe eingeben.");
                 }
             });
+         // VBox für Aktivitäten
+            activity = new VBox(10);
+
+         // Überschrift
+         Text activityHeader = new Text("Aktivitäten");
+         activityHeader.getStyleClass().add("h1");
+
+         // Menüleiste
+         MenuBar menuBar = new MenuBar();
+         Menu activityMenu = new Menu("Aktivitäten");
+
+         String[] activities = {"Joggen", "Schwimmen", "Radfahren", "Nordic Walking", 
+                                 "Krafttraining", "HIT-Workout", "Boxen", 
+                                 "Fußball", "Basketball", "Turnen","Wandern","Fitnessstudio","Yoga"};
+
+         TextField ActivityField = new TextField();
+         ActivityField.setPromptText("Gewählte Aktivität");
+         ActivityField.setEditable(false);
+
+         // Menüeinträge hinzufügen
+         for (String act : activities) {
+             MenuItem item = new MenuItem(act);
+             item.setOnAction(e -> ActivityField.setText(act));
+             activityMenu.getItems().add(item);
+         }
+
+         menuBar.getMenus().add(activityMenu);
+         Label Stunden = new Label("Stunden : ");
+
+         // Eingabe für Dauer der Aktivität
+         Spinner<Integer> hoursSpinner = new Spinner<>(0, 23, 0);
+         hoursSpinner.setEditable(false);
+         hoursSpinner.setPrefWidth(70);
+
+         Label Minute = new Label("Minuten :");
+
+         Spinner<Integer> minutesSpinner = new Spinner<>(0, 59, 0);
+         minutesSpinner.setEditable(false);
+         minutesSpinner.setPrefWidth(70);
+
+         Label KcalCalc = new Label("Dein kcal für diese Aufgabe  : ");
+         kcalclac = new Text("");
+
+         // Bestätigungs-Button
+         Button activitetButton = new Button("Speichern");
+         activitetButton.setOnAction(e -> {
+             try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root")) {
+                 
+                 int mitarbeiterId = -1;
+                 double gewicht = 0.0;
+                 double bmi = 0.0;    
+
+                 // Benutzerinformationen abrufen
+                 try (PreparedStatement pstmt = conn.prepareStatement("SELECT mitarbeiter_id, aktuelle_bmi, aktuelles_gewicht FROM mitarbeiter WHERE user_name = ?")) {
+                     pstmt.setString(1, currentUser.getUsername());
+                     ResultSet rs = pstmt.executeQuery();
+                     if (rs.next()) {
+                         bmi = rs.getDouble("aktuelle_bmi");
+                         gewicht = rs.getDouble("aktuelles_gewicht");
+                         mitarbeiterId = rs.getInt("mitarbeiter_id");
+                     } else {
+                         System.err.println("Kein Benutzer gefunden!");
+                         return;
+                     } 
+                 }
+
+                 int aktivitaetsId = -1;
+                 double met = 0.0;
+
+                 // Nutzer muss eine Aktivität ausgewählt haben
+                 String activitySelected = ActivityField.getText();
+                 if (activitySelected.isEmpty()) {
+                     System.err.println("Bitte eine Aktivität auswählen!");
+                     return;
+                 }
+
+                 System.out.println("Gewählte Aktivität: " + activitySelected);
+
+                 // Aktivitätsinformationen abrufen
+                 try (PreparedStatement pstmt = conn.prepareStatement("SELECT aktivitaets_id, kcal_pro_minute FROM aktivitaeten WHERE aktivitaetstyp = ?")) {
+                     pstmt.setString(1, activitySelected);  // ✅ Hier war vorher ein Fehler!
+                     ResultSet rs = pstmt.executeQuery();
+                     if (rs.next()) {
+                         aktivitaetsId = rs.getInt("aktivitaets_id");
+                         met = rs.getDouble("kcal_pro_minute");
+                         System.out.println("Aktivität gefunden! ID: " + aktivitaetsId + ", MET: " + met);
+                     } else {
+                         System.err.println("Kein Aktivitätstyp gefunden!");
+                         return;
+                     } 
+                 }
+
+                 // Aktivitätsdauer berechnen
+                 int hours = hoursSpinner.getValue();
+                 int minutes = minutesSpinner.getValue();
+                 double duration = hours + (minutes / 60.0);
+
+                 // Kalorienberechnung
+                 double caloriesBurned = met * gewicht * duration;
+                 kcalclac.setText(String.format("Kalorien verbrannt: %.2f kcal", caloriesBurned));
+                 System.out.println("Berechnete Kalorien: " + caloriesBurned);
+
+                 // Daten in die Datenbank einfügen
+                 try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO daily_log (mitarbeiter_id, datum, gewicht, bmi, aktivitaets_id, aktivitaets_dauer, kcal_pro_aktivitaet) VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)")) {
+                     pstmt.setInt(1, mitarbeiterId);
+                     pstmt.setDouble(2, gewicht);
+                     pstmt.setDouble(3, bmi);
+                     pstmt.setInt(4, aktivitaetsId);
+                     pstmt.setDouble(5, duration);
+                     pstmt.setDouble(6, caloriesBurned);
+
+                     int rowsInserted = pstmt.executeUpdate();
+                     if (rowsInserted > 0) {
+                         System.out.println("Daten erfolgreich aktualisiert.");
+                     } else {
+                         System.err.println("Fehler beim Einfügen in die Datenbank!");
+                     }
+                 }
+
+             } catch (SQLException e1) {
+                 System.err.println("SQL-Fehler: " + e1.getMessage());
+                 e1.printStackTrace();
+             }
+         });
+
+         activity.setPrefSize(600, 700);
+         ActivityField.setMaxWidth(250);
+         menuBar.setMaxWidth(250);
+         // Alle Elemente zur VBox hinzufügen
+         activity.getChildren().addAll(activityHeader, menuBar, ActivityField, Stunden, hoursSpinner, Minute, minutesSpinner, activitetButton, KcalCalc, kcalclac);
+
+            
+         
+            
+            
+            //enter-Button Aktion
+            
             
             userStats.setAlignment(Pos.TOP_LEFT);
             bmiCalc.setAlignment(Pos.CENTER);
+            activity.setAlignment(Pos.CENTER);
             menulayout.setTop(menu);
             menulayout.setLeft(userStats);
             menulayout.setCenter(bmiCalc);
@@ -360,8 +585,9 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             // ** Aktionen für die Buttons **
             //regButton
             logoutButton.setOnAction(e -> primaryStage.setScene(login));	//Logout Button(Abmeldung erfolgt und Szenen wecheseln zum Login-Szene)
-          
-            
+            //BMICalc.setOnShowing(e -> {menulayout.setCenter(bmiCalc);});
+            //Activity.setOnShowing(e -> {menulayout.setCenter(activity);});
+            //KcalCalc.setOnShowing(e -> {menulayout.setCenter(kcalCalc);});
             registButton.setOnAction(e -> primaryStage.setScene(registration));  // Registrierungs Button (Wechsel Szene wechseln
             backButton.setOnAction(e -> primaryStage.setScene(login));  // Zurück zur Login-Szene
  

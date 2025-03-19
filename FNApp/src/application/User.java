@@ -8,6 +8,8 @@ public class User {
 	    private double height;
 	    private double weight;
 	    private double bmi;
+	    private int userid;
+	    
 
 	    // Konstruktor zum Initialisieren der Benutzerinformationen
 	    public User() {}
@@ -18,6 +20,13 @@ public class User {
 
 		public void setFirstName(String firstName) {
 			this.firstname = firstName;
+		}
+		
+		public int  getuserid() {
+			return userid;
+		}
+		public void setUserid(int userid) {
+			this.userid = userid;
 		}
 
 		public String getLastName() {
