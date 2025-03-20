@@ -8,7 +8,6 @@ import java.sql.SQLException;
  
 import javafx.application.Application;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,11 +20,8 @@ import javafx.scene.image.ImageView;
  
 import javafx.scene.layout.BorderPane;
  
- 
- 
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -37,22 +33,18 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Menu;
  
-import application.User;
 import database.PostgreSQLConnection;
  
  
 public class Main extends Application implements EventHandler<ActionEvent>{
  
-	private Scene registration;  // Deklaration der Szene für Registrierung außerhalb der start()-Methode
+    private Scene registration;  // Deklaration der Szene für Registrierung außerhalb der start()-Methode
     private Scene mainMenu;	
     private User currentUser;
-    private Label uStatVorname,uStatNachname,uStatheight, uStatweight;
     private Text uStatvname, uStatnname, uStath, uStatw, uStatbmi, aktbmi,kcalclac;
-	private VBox bmiCalc;
-    //private Label errorMessage;
-    //private TabPane mainmenu;
-	private VBox activity;
-	//private VBox kcalCalc;
+    private VBox bmiCalc;
+    private VBox activity;
+	
    
  
     public static void main(String[] args) {
@@ -109,7 +101,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             imageview.fitHeightProperty().bind(login.heightProperty());
  
          // Login-Button-Action
-            submitButton.setOnAction(e -> {
+            submitButton.setOnAction(_ -> {
                 String inputUsername = uName.getText();
                 String inputPassword = pWord.getText();
  
@@ -158,24 +150,25 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             });
             
      
-            //Szene 2 - Registrierung
-            //Head Pic & Überschrift
-            VBox header = new VBox();
-            Image headimg = new Image(getClass().getResource("/resources/img/jogging640.jpg").toExternalForm());
-            ImageView headimgv = new ImageView(headimg);
-            headimgv.setFitWidth(800);
-            headimgv.setFitHeight(280);
-            Text regh1 = new Text("Registrierung");
-            header.setAlignment(Pos.CENTER);
-            header.getChildren().addAll(headimgv,regh1);
-            regh1.getStyleClass().add("h1");
+        //Szene 2 - Registrierung
+        //Head Pic & Überschrift
+	 VBox header = new VBox();
+         Image headimg = new Image(getClass().getResource("/resources/img/jogging640.jpg").toExternalForm());
+         ImageView headimgv = new ImageView(headimg);
+         headimgv.setFitWidth(800);
+         headimgv.setFitHeight(280);
+         Text regh1 = new Text("Registrierung");
+         header.setAlignment(Pos.CENTER);
+         header.getChildren().addAll(headimgv,regh1);
+         regh1.getStyleClass().add("h1");
  
  
-            // ** Registrierung Layout erstellen **
-            VBox regForm = new VBox(5);
+         // ** Registrierung Layout erstellen **
+         VBox regForm = new VBox(5);
             
          
          // Labels und Textfelder für Eingaben
+            
          Label usernameLabel = new Label("Benutzername:");
          TextField usernames = new TextField();
          usernameLabel.getStyleClass().add("custom-label-reg");
@@ -187,10 +180,6 @@ public class Main extends Application implements EventHandler<ActionEvent>{
          Label lname = new Label("Nachname: ");
          TextField lastname = new TextField();
          lname.getStyleClass().add("custom-label-reg");
-
-         Label email = new Label("Email: ");
-         TextField Email = new TextField();
-         email.getStyleClass().add("custom-label-reg");
 
          Label psswort = new Label("Wähle Ein Passwort:");
          PasswordField password1 = new PasswordField();
@@ -213,7 +202,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
          Button regButton = new Button("Registrieren");
          Button backButton = new Button("Zurück");
 
-         regButton.setOnAction(e -> {
+         regButton.setOnAction(_ -> {
              // Sicherstellen, dass die Felder für Vorname und Nachname nicht leer sind
              String vorname = firstname.getText();
              String nachname = lastname.getText();
@@ -249,10 +238,10 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                      pstmt.setString(1, vorname);
                      pstmt.setString(2, nachname);
                      pstmt.setDouble(3, groesse);
-                     pstmt.setDouble(4, gewicht1); // Beispiel für BMI (berechnet oder statisch gesetzt)
-                     pstmt.setInt(5, 0); // Beispiel für Aktivitäts-ID (wird später angepasst)
-                     pstmt.setString(6, usern); // Beispiel für Aktivitätsdauer
-                     pstmt.setString(7, pass2); // Beispiel für Kalorien pro Aktivität
+                     pstmt.setDouble(4, gewicht1); 
+                     pstmt.setInt(5, 0); 
+                     pstmt.setString(6, usern); 
+                     pstmt.setString(7, pass2); 
 
                      int rowsInserted = pstmt.executeUpdate();
                      if (rowsInserted > 0) {
@@ -266,7 +255,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                  ex.printStackTrace();
              }
          });
-            regForm.getChildren().addAll(usernameLabel, usernames,fname,firstname,lname,lastname,email,Email,psswort,password1,
+            regForm.getChildren().addAll(usernameLabel, usernames,fname,firstname,lname,lastname,psswort,password1,
             		pssbest,passbest,height,heightcm,weight,weightKG,regButton,backButton);
  
             regForm.getStyleClass().addAll("TextField","PasswordField");
@@ -290,16 +279,16 @@ public class Main extends Application implements EventHandler<ActionEvent>{
 			
 			Label bmiLabel = new Label("BMI-Rechner");
             bmiLabel.getStyleClass().add("menu-label"); // CSS-Klasse, die du definierst
-            bmiLabel.setOnMouseClicked(e -> menulayout.setCenter(bmiCalc));
+            bmiLabel.setOnMouseClicked(_ -> menulayout.setCenter(bmiCalc));
 
             Label activitys = new Label("Aktivität");
             activitys.getStyleClass().add("menu-label");
-            activitys.setOnMouseClicked(e -> menulayout.setCenter(activity));
+            activitys.setOnMouseClicked(_ -> menulayout.setCenter(activity));
 
             
             
             Button logoutButton = new Button("Logout");
-            logoutButton.setOnAction(e -> primaryStage.setScene(login));
+            logoutButton.setOnAction(_ -> primaryStage.setScene(login));
             
             HBox menu = new HBox(10, bmiLabel, activitys, logoutButton);
            
@@ -329,20 +318,19 @@ public class Main extends Application implements EventHandler<ActionEvent>{
            
          // Update-Button
             Button updateButton = new Button("Update");
-            updateButton.setOnAction(e -> {
+            updateButton.setOnAction(_ -> {
             	if (currentUser != null) {
                     try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root")) {
                          
-                    	int mitarbeiterId = -1;
+                    	
                     	double gewicht = 0.0;
                     	double bmi = 0.0;	
-                    	try (PreparedStatement pstmt = conn.prepareStatement("SELECT mitarbeiter_id, aktuelle_bmi, aktuelles_gewicht  FROM mitarbeiter WHERE user_name = ?")) {
+                    	try (PreparedStatement pstmt = conn.prepareStatement("SELECT aktuelle_bmi, aktuelles_gewicht  FROM mitarbeiter WHERE user_name = ?")) {
                     		pstmt.setString(1, currentUser.getUsername());
                     		ResultSet rs = pstmt.executeQuery();
                     		if (rs.next()) {
                     			bmi = rs.getDouble("aktuelle_bmi");
                     			gewicht = rs.getDouble("aktuelles_gewicht");
-                    			mitarbeiterId = rs.getInt("mitarbeiter_id");
                     			uStatbmi.setText(" " + bmi);
                     			uStatw.setText(" " + gewicht);
                     		} else {
@@ -388,7 +376,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             bmiCalc.setPrefSize(600, 700);
             bmiCalc.getChildren().addAll(bmiCalcHeader, yourWeight, yWeight, yourHeight, yHeight, enterButton, aktBmi, aktbmi);
             
-            enterButton.setOnAction(e -> {
+            enterButton.setOnAction(_ -> {
                 try {
                     // Eingabewerte aus den Textfeldern abrufen
                     double userweight = Double.parseDouble(yWeight.getText());
@@ -458,7 +446,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
          // Menüeinträge hinzufügen
          for (String act : activities) {
              MenuItem item = new MenuItem(act);
-             item.setOnAction(e -> ActivityField.setText(act));
+             item.setOnAction(_ -> ActivityField.setText(act));
              activityMenu.getItems().add(item);
          }
 
@@ -481,7 +469,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
 
          // Bestätigungs-Button
          Button activitetButton = new Button("Speichern");
-         activitetButton.setOnAction(e -> {
+         activitetButton.setOnAction(_ -> {
              try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root")) {
                  
                  int mitarbeiterId = -1;
@@ -584,12 +572,9 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             
             // ** Aktionen für die Buttons **
             //regButton
-            logoutButton.setOnAction(e -> primaryStage.setScene(login));	//Logout Button(Abmeldung erfolgt und Szenen wecheseln zum Login-Szene)
-            //BMICalc.setOnShowing(e -> {menulayout.setCenter(bmiCalc);});
-            //Activity.setOnShowing(e -> {menulayout.setCenter(activity);});
-            //KcalCalc.setOnShowing(e -> {menulayout.setCenter(kcalCalc);});
-            registButton.setOnAction(e -> primaryStage.setScene(registration));  // Registrierungs Button (Wechsel Szene wechseln
-            backButton.setOnAction(e -> primaryStage.setScene(login));  // Zurück zur Login-Szene
+            logoutButton.setOnAction(_ -> primaryStage.setScene(login));	//Logout Button(Abmeldung erfolgt und Szenen wecheseln zum Login-Szene)
+            registButton.setOnAction(_ -> primaryStage.setScene(registration));  // Registrierungs Button (Wechsel Szene wechseln
+            backButton.setOnAction(_ -> primaryStage.setScene(login));  // Zurück zur Login-Szene
  
             // ** Hauptfenster anzeigen **
             primaryStage.setScene(login);
@@ -602,9 +587,9 @@ public class Main extends Application implements EventHandler<ActionEvent>{
         }
     }
  
-	@Override
+	
 	public void handle(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 }
