@@ -38,11 +38,11 @@ import database.PostgreSQLConnection;
  
 public class Main extends Application implements EventHandler<ActionEvent>{
  
-    private Scene registration;  // Deklaration der Szene für Registrierung außerhalb der start()-Methode
+	private Scene registration;  // Deklaration der Szene für Registrierung außerhalb der start()-Methode
     private Scene mainMenu;	
     private User currentUser;
     private Text uStatvname, uStatnname, uStath, uStatw, uStatbmi, aktbmi,kcalclac;
-    private VBox bmiCalc;
+	private VBox bmiCalc;
     private VBox activity;
 	
    
@@ -150,21 +150,21 @@ public class Main extends Application implements EventHandler<ActionEvent>{
             });
             
      
-        //Szene 2 - Registrierung
-        //Head Pic & Überschrift
-	 VBox header = new VBox();
-         Image headimg = new Image(getClass().getResource("/resources/img/jogging640.jpg").toExternalForm());
-         ImageView headimgv = new ImageView(headimg);
-         headimgv.setFitWidth(800);
-         headimgv.setFitHeight(280);
-         Text regh1 = new Text("Registrierung");
-         header.setAlignment(Pos.CENTER);
-         header.getChildren().addAll(headimgv,regh1);
-         regh1.getStyleClass().add("h1");
+            //Szene 2 - Registrierung
+            //Head Pic & Überschrift
+            VBox header = new VBox();
+            Image headimg = new Image(getClass().getResource("/resources/img/jogging640.jpg").toExternalForm());
+            ImageView headimgv = new ImageView(headimg);
+            headimgv.setFitWidth(800);
+            headimgv.setFitHeight(280);
+            Text regh1 = new Text("Registrierung");
+            header.setAlignment(Pos.CENTER);
+            header.getChildren().addAll(headimgv,regh1);
+            regh1.getStyleClass().add("h1");
  
  
-         // ** Registrierung Layout erstellen **
-         VBox regForm = new VBox(5);
+            // ** Registrierung Layout erstellen **
+            VBox regForm = new VBox(5);
             
          
          // Labels und Textfelder für Eingaben
@@ -180,6 +180,10 @@ public class Main extends Application implements EventHandler<ActionEvent>{
          Label lname = new Label("Nachname: ");
          TextField lastname = new TextField();
          lname.getStyleClass().add("custom-label-reg");
+         
+         Label email = new Label("Email: ");
+         TextField Email = new TextField();
+         email.getStyleClass().add("custom-label-reg");
 
          Label psswort = new Label("Wähle Ein Passwort:");
          PasswordField password1 = new PasswordField();
@@ -206,12 +210,23 @@ public class Main extends Application implements EventHandler<ActionEvent>{
              // Sicherstellen, dass die Felder für Vorname und Nachname nicht leer sind
              String vorname = firstname.getText();
              String nachname = lastname.getText();
-             String usern = usernames.getText();
-             if (vorname.isEmpty() || nachname.isEmpty() || usern.isEmpty() ){
+             
+             if (vorname.isEmpty() || nachname.isEmpty() ){
                  System.err.println("Bitte geben Sie Vorname und Nachname ein!");
                  return; // Beende die Methode, wenn die Felder leer sind
              }
-
+             String usern = usernames.getText();
+             
+             if ( usern.isEmpty() ){
+                 System.err.println("Bitte geben Sie Username ein!");
+                 return; // Beende die Methode, wenn die Felder leer sind
+             }
+             
+             String em = Email.getText();
+             if (em.isEmpty() ){
+                 System.err.println("Bitte geben Sie Email ein!");
+                 return; // Beende die Methode, wenn die Felder leer sind
+             }
              // Sicherstellen, dass Passwort und Bestätigung übereinstimmen
              String pass1 = password1.getText();
              String pass2 = passbest.getText();
@@ -233,7 +248,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
 
              // Verbindung zur Datenbank herstellen
              try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/fitnessapp", "postgres", "root")) {
-                 String query = "INSERT INTO mitarbeiter (vorname, nachname, groesse, aktuelles_gewicht, aktuelle_bmi, user_name, passwort) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                 String query = "INSERT INTO mitarbeiter (vorname, nachname, groesse, aktuelles_gewicht, aktuelle_bmi, user_name, passwort,email) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
                  try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                      pstmt.setString(1, vorname);
                      pstmt.setString(2, nachname);
@@ -241,7 +256,8 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                      pstmt.setDouble(4, gewicht1); 
                      pstmt.setInt(5, 0); 
                      pstmt.setString(6, usern); 
-                     pstmt.setString(7, pass2); 
+                     pstmt.setString(7, pass2);
+                     pstmt.setString(8, em);
 
                      int rowsInserted = pstmt.executeUpdate();
                      if (rowsInserted > 0) {
@@ -255,7 +271,7 @@ public class Main extends Application implements EventHandler<ActionEvent>{
                  ex.printStackTrace();
              }
          });
-            regForm.getChildren().addAll(usernameLabel, usernames,fname,firstname,lname,lastname,psswort,password1,
+            regForm.getChildren().addAll(usernameLabel, usernames,fname,firstname,lname,lastname,email,Email,psswort,password1,
             		pssbest,passbest,height,heightcm,weight,weightKG,regButton,backButton);
  
             regForm.getStyleClass().addAll("TextField","PasswordField");
